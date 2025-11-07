@@ -1,3 +1,4 @@
 artifacts/
 data/shanghaitech/
 *.pt
+*/__pycache__/*
