@@ -88,14 +88,24 @@ def main():
     ap.add_argument("--data_root", type=str, default="./data/shanghaitech")
     ap.add_argument("--detections_root", type=str, default="./artifacts/detections")
     ap.add_argument("--split", choices=["training", "testing"], required=True)
-    ap.add_argument("--frames_subdir", type=str, default="frames")
+    ap.add_argument("--frames_subdir", type=str, default="frames",
+                    help="Subdirectory under each split containing frames (default: frames)")
+    ap.add_argument("--frames_root", type=str, default=None,
+                    help="Optional absolute path override for the frames directory")
+    ap.add_argument("--out_root", type=str, default=None,
+                    help="Directory to save bbox npy files (default: data_root)")
     args = ap.parse_args()
 
     split_suffix = "train" if args.split == "training" else "test"
-    out_boxes = Path(args.data_root) / f"{args.dataset_name}_bboxes_{split_suffix}.npy"
-    out_classes = Path(args.data_root) / f"{args.dataset_name}_bboxes_{split_suffix}_classes.npy"
+    out_root = Path(args.out_root) if args.out_root else Path(args.data_root)
+    out_root.mkdir(parents=True, exist_ok=True)
+    out_boxes = out_root / f"{args.dataset_name}_bboxes_{split_suffix}.npy"
+    out_classes = out_root / f"{args.dataset_name}_bboxes_{split_suffix}_classes.npy"
 
-    frames_root = Path(args.data_root) / args.split / args.frames_subdir
+    if args.frames_root:
+        frames_root = Path(args.frames_root)
+    else:
+        frames_root = Path(args.data_root) / args.split / args.frames_subdir
     detections_root = Path(args.detections_root) / args.split
 
     boxes_arr, classes_arr = _collect_split(frames_root, detections_root)
@@ -108,6 +118,7 @@ def main():
         "frames_dir": str(frames_root),
         "detections_dir": str(detections_root),
         "frames_processed": int(len(boxes_arr)),
+        "out_root": str(out_root),
     }
     print(json.dumps(meta, indent=2))
     print(f"[save] {out_boxes}")

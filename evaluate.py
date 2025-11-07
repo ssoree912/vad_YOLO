@@ -128,6 +128,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset_name", type=str, default="ped2", help='dataset name')
     parser.add_argument("--sigma", type=int, default=3, help='sigma for gaussian1d smoothing')
+    parser.add_argument("--data_root", type=str, default="data", help="dataset root directory")
     args = parser.parse_args()
-    root = 'data/'
+    root = args.data_root
     evaluate(args, root)
