@@ -1,23 +1,20 @@
-# ---------- PyTorch (CUDA 11.6) ----------
+# --- PyTorch (CUDA 11.6) ---
 torch==1.13.1+cu116
 torchvision==0.14.1+cu116
 torchaudio==0.13.1+cu116
 --extra-index-url https://download.pytorch.org/whl/cu116
 
-# ---------- YOLO (Ultralytics 8.0.151: py>=3.7 호환 마지막 라인) ----------
-ultralytics==8.0.151
+# --- YOLOv5는 Torch Hub 사용(ultralytics 패키지 설치하지 않음) ---
 
-# ---------- CLIP ----------
+# --- CLIP ---
 git+https://github.com/openai/CLIP.git@main
 ftfy==6.1.1
 regex==2022.7.9
 
-# ---------- Computer Vision ----------
+# --- CV / Sci Stack ---
 opencv-python==4.6.0.66
 opencv-contrib-python==4.6.0.66
 Pillow==9.2.0
-
-# ---------- Scientific Stack ----------
 numpy==1.21.6
 scipy==1.7.3
 scikit-learn==1.0.2
@@ -25,7 +22,7 @@ matplotlib==3.5.3
 pandas==1.3.5
 h5py==3.7.0
 
-# ---------- Utils ----------
+# --- Utils ---
 tqdm==4.64.1
 imageio==2.19.3
 imageio-ffmpeg==0.4.7
