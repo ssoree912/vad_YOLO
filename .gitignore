@@ -2,3 +2,8 @@ artifacts/
 data/shanghaitech/
 *.pt
 */__pycache__/*
+data/cache/
+apt-cache
+__pycache__/
+*.tar
+flownet_networks/

@@ -76,7 +76,7 @@ if __name__ == '__main__':
     parser.add_argument("--train", action='store_true', help='train or test data')
 
     args = parser.parse_args()
-    root = 'data/'
+    root = 'data/cache/'
 
     with torch.no_grad():
         extracting_flows(dataset_name=args.dataset_name, root=root, train=args.train)
