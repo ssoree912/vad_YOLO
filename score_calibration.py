@@ -85,8 +85,8 @@ def compute_calibration_parameters(args, root):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset_name", type=str, default="ped2", help='dataset name')
-    parser.add_argument("--data_root", type=str, default="data", help="dataset root directory")
-    parser.add_argument("--features_root", type=str, default="extracted_features",
+    parser.add_argument("--data_root", type=str, default="data/cache", help="dataset root directory")
+    parser.add_argument("--features_root", type=str, default="artifacts/features",
                         help="Root directory storing extracted features (e.g., data/cache/extracted)")
     parser.add_argument("--faiss_use_gpu", action="store_true", help="Enable FAISS GPU indices")
     parser.add_argument("--faiss_device", type=int, default=0, help="GPU device id for FAISS indices")

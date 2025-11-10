@@ -171,7 +171,7 @@ def process_shanghaitech(data_root, output_root, model='yolov5s', weights=None,
 
 def main():
     ap = argparse.ArgumentParser("YOLOv5 (Torch Hub) detection for VAD (ShanghaiTech)")
-    ap.add_argument("--data_root", type=str, default="./data/shanghaitech")
+    ap.add_argument("--data_root", type=str, default="./data/cache/shanghaitech")
     ap.add_argument("--output_root", type=str, default="./artifacts/detections")
     ap.add_argument("--model", type=str, default="yolov5s",
                     help="yolov5n/s/m/l/x (COCO pretrained). Use --weights for custom .pt")

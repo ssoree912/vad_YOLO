@@ -151,8 +151,8 @@ def extract(args, root):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset_name", type=str, default="ped2", help='dataset name')
-    parser.add_argument("--data_root", type=str, default="data", help="dataset root directory")
-    parser.add_argument("--features_root", type=str, default="extracted_features",
+    parser.add_argument("--data_root", type=str, default="data/cache", help="dataset root directory")
+    parser.add_argument("--features_root", type=str, default="artifacts/features",
                         help="Root directory to store extracted features (e.g., data/cache/extracted)")
     args = parser.parse_args()
     root = args.data_root

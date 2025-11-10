@@ -73,11 +73,11 @@ def parse_args():
     ap = argparse.ArgumentParser("Extract ResNet50 features for every YOLO detection")
     ap.add_argument("--dataset_name", type=str, default="shanghaitech")
     ap.add_argument("--split", choices=["training", "testing"], required=True)
-    ap.add_argument("--data_root", type=str, default="./data/shanghaitech")
+    ap.add_argument("--data_root", type=str, default="./data/cache/shanghaitech")
     ap.add_argument("--detections_root", type=str, default="./artifacts/detections")
     ap.add_argument("--frames_root", type=str, default=None,
                     help="Override frames directory (default=data_root/<split>/frames)")
-    ap.add_argument("--out_root", type=str, default="./extracted_features")
+    ap.add_argument("--out_root", type=str, default="./artifacts/features")
     ap.add_argument("--batch_size", type=int, default=32)
     ap.add_argument("--img_size", type=int, default=224)
     return ap.parse_args()

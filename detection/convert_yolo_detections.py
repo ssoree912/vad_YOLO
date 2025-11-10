@@ -85,7 +85,7 @@ def main():
         description="Convert YOLO detection pickles to Attribute-VAD bbox npy files"
     )
     ap.add_argument("--dataset_name", type=str, default="shanghaitech")
-    ap.add_argument("--data_root", type=str, default="./data/shanghaitech")
+    ap.add_argument("--data_root", type=str, default="./data/cache/shanghaitech")
     ap.add_argument("--detections_root", type=str, default="./artifacts/detections")
     ap.add_argument("--split", choices=["training", "testing"], required=True)
     ap.add_argument("--frames_subdir", type=str, default="frames",

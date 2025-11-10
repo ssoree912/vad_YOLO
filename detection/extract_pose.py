@@ -227,14 +227,15 @@ def build_pose_for_split(data_root: Path,
 
 def parse_args():
     ap = argparse.ArgumentParser("Extract YOLO-aligned pose.npy (torchvision keypoint R-CNN)")
-    ap.add_argument("--data_root", type=str, default="data/shanghaitech")
+    ap.add_argument("--dataset_name", type=str, default="shanghaitech")
+    ap.add_argument("--data_root", type=str, default="data/cache/shanghaitech")
     ap.add_argument("--split", type=str, default="training", choices=["training", "testing"])
     ap.add_argument("--detections_root", type=str, required=True,
                     help="artifacts/detections/<split>")
     ap.add_argument("--frames_root", type=str, default=None,
                     help="defaults to data_root/<split>/frames")
-    ap.add_argument("--out_root", type=str, default="artifacts/features/shanghaitech",
-                    help="will save to <out_root>/<split>/pose.npy")
+    ap.add_argument("--out_root", type=str, default="artifacts/features",
+                    help="will save to <out_root>/<dataset>/<split>/pose.npy")
     ap.add_argument("--person_name", type=str, default="person")
     ap.add_argument("--iou_match_thr", type=float, default=0.5)
     ap.add_argument("--kp_conf_thr", type=float, default=0.5)
@@ -246,11 +247,12 @@ def main():
     data_root = Path(args.data_root)
     frames_root = Path(args.frames_root) if args.frames_root else (data_root / args.split / "frames")
     detections_root = Path(args.detections_root)
-    out_path = Path(args.out_root) / args.split / "pose.npy"
+    out_path = Path(args.out_root) / args.dataset_name / ("train" if args.split == "training" else "test") / "pose.npy"
 
     print("=== Pose extraction (torchvision Keypoint R-CNN) ===")
     print({
         "data_root": str(data_root),
+        "dataset": args.dataset_name,
         "split": args.split,
         "frames_root": str(frames_root),
         "detections_root": str(detections_root),

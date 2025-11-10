@@ -470,8 +470,8 @@ def parse_args():
     ap = argparse.ArgumentParser("Attribute-VAD based anomaly prompt builder (memory-safe)")
     ap.add_argument("--dataset_name", type=str, default="shanghaitech")
     ap.add_argument("--split", type=str, default="testing", choices=["training", "testing"])
-    ap.add_argument("--data_root", type=str, default="./data/shanghaitech")
-    ap.add_argument("--extracted_root", type=str, default="./extracted_features")
+    ap.add_argument("--data_root", type=str, default="./data/cache/shanghaitech")
+    ap.add_argument("--extracted_root", type=str, default="./artifacts/features")
     ap.add_argument("--detections_dir", type=str, required=True,
                     help="Directory with per-video detections.npy files for the split")
     ap.add_argument("--frames_root", type=str, default=None,
