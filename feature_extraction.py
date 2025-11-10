@@ -4,6 +4,7 @@ import numpy as np
 import argparse
 import cv2
 import os
+from pathlib import Path
 from tqdm import tqdm
 from scipy.ndimage import uniform_filter
 from video_dataset import VideoDatasetWithFlows
@@ -63,6 +64,12 @@ def extract(args, root):
     train_feature_space = []
     test_feature_space = []
 
+    feats_root = Path(args.features_root) / args.dataset_name
+    train_out = feats_root / 'train'
+    test_out = feats_root / 'test'
+    train_out.mkdir(parents=True, exist_ok=True)
+    test_out.mkdir(parents=True, exist_ok=True)
+
     with torch.no_grad():
         for idx in tqdm(range(len(train_dataset)), total=len(train_dataset)):
             batch, batch_flows, _ = train_dataset.__getitem__(idx)
@@ -99,8 +106,8 @@ def extract(args, root):
             train_velocity.append(train_sample_velocities)
         train_velocity = np.array(train_velocity)
 
-        np.save('extracted_features/{}/train/velocity.npy'.format(args.dataset_name), train_velocity)
-        np.save('extracted_features/{}/train/deep_features.npy'.format(args.dataset_name), train_feature_space)
+        np.save(train_out / 'velocity.npy', train_velocity)
+        np.save(train_out / 'deep_features.npy', train_feature_space)
 
         for idx in tqdm(range(len(test_dataset)), total=len(test_dataset)):
             batch, batch_flows, _ = test_dataset.__getitem__(idx)
@@ -138,13 +145,15 @@ def extract(args, root):
 
     test_velocity = np.array(test_velocity)
 
-    np.save('extracted_features/{}/test/velocity.npy'.format(args.dataset_name), test_velocity)
-    np.save('extracted_features/{}/test/deep_features.npy'.format(args.dataset_name), test_feature_space)
+    np.save(test_out / 'velocity.npy', test_velocity)
+    np.save(test_out / 'deep_features.npy', test_feature_space)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset_name", type=str, default="ped2", help='dataset name')
     parser.add_argument("--data_root", type=str, default="data", help="dataset root directory")
+    parser.add_argument("--features_root", type=str, default="extracted_features",
+                        help="Root directory to store extracted features (e.g., data/cache/extracted)")
     args = parser.parse_args()
     root = args.data_root
     extract(args, root)

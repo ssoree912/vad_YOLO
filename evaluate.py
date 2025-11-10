@@ -3,6 +3,7 @@ import argparse
 import faiss
 from video_dataset import VideoDatasetWithFlows, img_tensor2numpy
 import os
+from pathlib import Path
 from tqdm import tqdm
 from sklearn.metrics import roc_auc_score
 from scipy.ndimage import gaussian_filter1d
@@ -32,21 +33,26 @@ def macro_auc(video, test_labels, lengths):
 def evaluate(args, root):
     test_clip_lengths = np.load(os.path.join(root, args.dataset_name, 'test_clip_lengths.npy'))
 
-    train_velocity = np.load('extracted_features/{}/train/velocity.npy'.format(args.dataset_name), allow_pickle=True)
+    feats_root = Path(args.features_root) / args.dataset_name
+
+    def _feat(split: str, name: str) -> Path:
+        return feats_root / split / name
+
+    train_velocity = np.load(_feat('train', 'velocity.npy'), allow_pickle=True)
     train_velocity = np.concatenate(train_velocity, 0)
-    train_deep_features = np.load('extracted_features/{}/train/deep_features.npy'.format(args.dataset_name), allow_pickle=True)
+    train_deep_features = np.load(_feat('train', 'deep_features.npy'), allow_pickle=True)
     train_deep_features = np.concatenate(train_deep_features, 0)
 
-    train_pose = np.load('extracted_features/{}/train/pose.npy'.format(args.dataset_name), allow_pickle=True)
+    train_pose = np.load(_feat('train', 'pose.npy'), allow_pickle=True)
     without_empty_frames = []
     for i in tqdm(range(len(train_pose))):
         if len(train_pose[i]):
             without_empty_frames.append(train_pose[i])
     train_pose = np.concatenate(without_empty_frames, 0)
 
-    test_velocity = np.load('extracted_features/{}/test/velocity.npy'.format(args.dataset_name), allow_pickle=True)
-    test_pose = np.load('extracted_features/{}/test/pose.npy'.format(args.dataset_name), allow_pickle=True)
-    test_deep_features = np.load('extracted_features/{}/test/deep_features.npy'.format(args.dataset_name), allow_pickle=True)
+    test_velocity = np.load(_feat('test', 'velocity.npy'), allow_pickle=True)
+    test_pose = np.load(_feat('test', 'pose.npy'), allow_pickle=True)
+    test_deep_features = np.load(_feat('test', 'deep_features.npy'), allow_pickle=True)
 
     test_dataset = VideoDatasetWithFlows(dataset_name=args.dataset_name, root=root,
                                          train=False, sequence_length=0, all_bboxes=None, normalize=False, mode='last')
@@ -58,8 +64,8 @@ def evaluate(args, root):
 
     train_velocity_scores = -velocity_density_estimator.score_samples(train_velocity)
 
-    train_pose_scores = np.load('extracted_features/{}/train_pose_scores.npy'.format(args.dataset_name))
-    train_deep_features_scores = np.load('extracted_features/{}/train_deep_features_scores.npy'.format(args.dataset_name))
+    train_pose_scores = np.load(feats_root / 'train_pose_scores.npy')
+    train_deep_features_scores = np.load(feats_root / 'train_deep_features_scores.npy')
 
     min_deep_features = np.min(train_deep_features_scores)
     max_deep_features = np.max(train_deep_features_scores)
@@ -129,6 +135,8 @@ if __name__ == '__main__':
     parser.add_argument("--dataset_name", type=str, default="ped2", help='dataset name')
     parser.add_argument("--sigma", type=int, default=3, help='sigma for gaussian1d smoothing')
     parser.add_argument("--data_root", type=str, default="data", help="dataset root directory")
+    parser.add_argument("--features_root", type=str, default="extracted_features",
+                        help="Root directory that stores extracted features (e.g., artifacts/features)")
     args = parser.parse_args()
     root = args.data_root
     evaluate(args, root)

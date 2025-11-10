@@ -1,14 +1,28 @@
 import numpy as np
 import argparse
 import os
+from pathlib import Path
 from tqdm import tqdm
 import faiss
+
+def _maybe_gpu_index(index_cpu, use_gpu: bool, device: int = 0):
+    if not use_gpu:
+        return index_cpu
+    try:
+        res = faiss.StandardGpuResources()
+        return faiss.index_cpu_to_gpu(res, device, index_cpu)
+    except Exception as exc:
+        print(f"[warn] GPU FAISS unavailable ({exc}); falling back to CPU")
+        return index_cpu
+
 
 def compute_calibration_parameters(args, root):
     train_clip_lengths = np.load(os.path.join(root, args.dataset_name, 'train_clip_lengths.npy'))
 
-    train_poses = np.load(os.path.join('extracted_features', args.dataset_name, 'train', 'pose.npy'), allow_pickle=True)
-    train_deep_features = np.load(os.path.join('extracted_features', args.dataset_name, 'train', 'deep_features.npy'), allow_pickle=True)
+    feats_root = Path(args.features_root) / args.dataset_name
+
+    train_poses = np.load(feats_root / 'train' / 'pose.npy', allow_pickle=True)
+    train_deep_features = np.load(feats_root / 'train' / 'deep_features.npy', allow_pickle=True)
 
 
     all_ranges = np.arange(0, len(train_deep_features))
@@ -27,9 +41,8 @@ def compute_calibration_parameters(args, root):
         cur_deep_features = train_deep_features[cur_video_range]
         cur_deep_features = np.concatenate(cur_deep_features, 0)
 
-        res = faiss.StandardGpuResources()
         index = faiss.IndexFlatL2(rest_deep_features.shape[1])
-        index_deep_features = faiss.index_cpu_to_gpu(res, 0, index)
+        index_deep_features = _maybe_gpu_index(index, args.faiss_use_gpu, args.faiss_device)
         index_deep_features.add(rest_deep_features.astype(np.float32))
 
         D, I = index_deep_features.search(cur_deep_features.astype(np.float32), 1)
@@ -52,9 +65,8 @@ def compute_calibration_parameters(args, root):
         cur_poses = np.concatenate(without_empty_frames, 0)
         # cur_poses = np.concatenate(cur_poses, 0)
 
-        res = faiss.StandardGpuResources()
         index = faiss.IndexFlatL2(rest_poses.shape[1])
-        index_poses = faiss.index_cpu_to_gpu(res, 0, index)
+        index_poses = _maybe_gpu_index(index, args.faiss_use_gpu, args.faiss_device)
         index_poses.add(rest_poses.astype(np.float32))
 
         D, I = index_poses.search(cur_poses.astype(np.float32), 1)
@@ -66,14 +78,18 @@ def compute_calibration_parameters(args, root):
     features_scores = np.concatenate(features_scores, 0)
     pose_scores = np.concatenate(pose_scores, 0)
 
-    np.save('extracted_features/{}/train_pose_scores.npy'.format(args.dataset_name), pose_scores)
-    np.save('extracted_features/{}/train_deep_features_scores.npy'.format(args.dataset_name), features_scores)
+    np.save(feats_root / 'train_pose_scores.npy', pose_scores)
+    np.save(feats_root / 'train_deep_features_scores.npy', features_scores)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset_name", type=str, default="ped2", help='dataset name')
     parser.add_argument("--data_root", type=str, default="data", help="dataset root directory")
+    parser.add_argument("--features_root", type=str, default="extracted_features",
+                        help="Root directory storing extracted features (e.g., data/cache/extracted)")
+    parser.add_argument("--faiss_use_gpu", action="store_true", help="Enable FAISS GPU indices")
+    parser.add_argument("--faiss_device", type=int, default=0, help="GPU device id for FAISS indices")
     args = parser.parse_args()
     root = args.data_root
     compute_calibration_parameters(args, root)
